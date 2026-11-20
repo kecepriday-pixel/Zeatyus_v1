@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#080f20">
+  <meta name="description" content="StudentHub — kelola tugas, jadwal kuliah, dan catatan dalam satu tempat.">
+  <title>StudentHub — Ruang Kuliah Digital</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #080f20;
+      --panel: #111c33;
+      --panel2: #16233c;
+      --line: #293c59;
+      --text: #eff5ff;
+      --muted: #9cadc6;
+      --cyan: #66dcf9;
+      --blue: #4979ff;
+      --violet: #a28aff;
+      --green: #67dfb1;
+      --orange: #ffc37d;
+      --red: #ff8c9e;
+      --shadow: 0 24px 55px rgba(0, 0, 0, .22);
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: radial-gradient(ellipse 62% 30% at 10% 0%, #173052 0%, transparent 80%), var(--bg); color: var(--text); font-family: system-ui, -apple-system, 'Segoe UI', Arial, sans-serif; line-height: 1.5; min-height: 100vh; }
+    button, input, select, textarea { font: inherit; }
+    button { cursor: pointer; }
+    button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 3px solid var(--cyan); outline-offset: 3px; }
+    .shell { width: min(1100px, calc(100% - 36px)); margin: 0 auto; }
+    .topbar { border-bottom: 1px solid rgba(173, 204, 255, .12); background: rgba(8,15,32,.74); backdrop-filter: blur(14px); position: sticky; top: 0; z-index: 10; }
+    .navinner { min-height: 75px; display: flex; align-items: center; justify-content: space-between; gap: 14px; }
+    .brand { display: inline-flex; align-items: center; gap: 11px; color: var(--text); font-size: 21px; font-weight: 800; letter-spacing: -.65px; }
+    .brandmark { width: 39px; height: 39px; display: grid; place-items: center; border-radius: 13px; background: linear-gradient(135deg, var(--blue), var(--cyan)); color: #06132d; box-shadow: 0 6px 24px #469aff33; font-weight: 900; }
+    .navright { display: flex; gap: 8px; align-items: center; }
+    .smallbtn { border: 1px solid var(--line); color: var(--muted); border-radius: 11px; padding: 9px 12px; background: #142239; font-size: 13px; font-weight: 700; }
+    .smallbtn:hover { color: white; border-color: #5c83bd; }
+    .hero { position: relative; isolation: isolate; padding: 39px 37px; margin-top: 30px; border: 1px solid #2a426b; border-radius: 24px; overflow: hidden; background: linear-gradient(110deg, #142b53 5%, #162846 54%, #241e54 100%); box-shadow: var(--shadow); }
+    .hero:before { content: ''; position: absolute; z-index: -1; width: 340px; height: 340px; right: -110px; top: -140px; border: 1px solid #7ad6ff50; border-radius: 50%; box-shadow: 0 0 0 42px #73bdff0c, 0 0 0 90px #73bdff0a, 0 0 0 145px #73bdff06; }
+    .eyebrow { display: inline-block; color: var(--cyan); font-weight: 800; font-size: 12px; letter-spacing: .15em; text-transform: uppercase; }
+    .hero h1 { margin: 11px 0 9px; font-size: clamp(30px, 5vw, 47px); line-height: 1.12; letter-spacing: -1.6px; }
+    .hero h1 span { color: var(--cyan); }
+    .hero p { max-width: 620px; color: #c3d2ea; margin: 0 0 19px; font-size: 16px; }
+    .date-chip { background: #ffffff14; border: 1px solid #ffffff2a; padding: 8px 12px; display: inline-flex; align-items: center; gap: 7px; border-radius: 99px; color: #d3e4ff; font-size: 13px; }
+    .stats { margin: 20px 0 26px; display: grid; grid-template-columns: repeat(3,1fr); gap: 14px; }
+    .stat { padding: 19px 20px; border-radius: 17px; border: 1px solid var(--line); background: linear-gradient(145deg, #17253e, #111b30); }
+    .stat .meta { font-size: 13px; color: var(--muted); display: flex; align-items: center; gap: 8px; }
+    .stat strong { display: block; font-size: 32px; letter-spacing: -1px; margin-top: 4px; }
+    .tabs { display: flex; gap: 6px; overflow-x: auto; padding: 5px; background: #121c30; border: 1px solid var(--line); border-radius: 15px; margin-bottom: 22px; }
+    .tab { flex: 1; white-space: nowrap; border: 0; border-radius: 11px; background: transparent; color: var(--muted); padding: 12px 14px; font-weight: 750; font-size: 14px; }
+    .tab.active { background: linear-gradient(135deg, #2d67e6, #426cc4); color: white; box-shadow: 0 8px 17px #0003; }
+    .tab:not(.active):hover { background: #1e3050; color: #fff; }
+    .page { display: none; animation: fadein .2s ease; }
+    .page.active { display: block; }
+    @keyframes fadein { from {opacity: .4; transform: translateY(5px)} to {opacity: 1; transform: translateY(0)} }
+    .heading { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; margin: 0 0 15px; }
+    h2 { font-size: 22px; line-height: 1.3; letter-spacing: -.55px; margin: 0; }
+    .subheading { color: var(--muted); font-size: 14px; margin: 5px 0 0; }
+    .twocol { display: grid; grid-template-columns: 1.18fr 1fr; gap: 16px; }
+    .card { border: 1px solid var(--line); border-radius: 18px; background: linear-gradient(145deg, #142139, #111a2e); padding: 21px; margin-bottom: 16px; }
+    .card h3 { font-size: 16px; margin: 0 0 14px; display: flex; gap: 9px; align-items: center; }
+    .item { display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; background: #192841; border: 1px solid #293c58; border-radius: 12px; padding: 13px; margin-top: 10px; }
+    .itemmain { min-width: 0; flex: 1; }
+    .itemname { font-weight: 750; overflow-wrap: anywhere; }
+    .item.done .itemname { text-decoration: line-through; color: var(--muted); }
+    .itemdetail { color: var(--muted); font-size: 12px; margin-top: 4px; overflow-wrap: anywhere; }
+    .itemactions { display: flex; gap: 7px; flex-shrink: 0; align-items: center; }
+    .pill { display: inline-block; font-size: 11px; font-weight: 800; padding: 4px 8px; border-radius: 20px; background: #34486b; color: #d3e2ff; margin-top: 7px; }
+    .pill.urgent { background: #5a3548; color: #ffc1cc; }
+    .pill.soon { background: #554631; color: #ffdc9b; }
+    .pill.donepill { background: #24493e; color: #9bf2ca; }
+    .iconbtn { color: #c7d5ef; background: #253752; border: 1px solid #405474; border-radius: 8px; min-width: 34px; min-height: 34px; padding: 4px 8px; }
+    .iconbtn:hover { background: #365178; }
+    .iconbtn.danger:hover { background: #612e43; color: white; }
+    .empty { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 4px; padding: 27px 12px; color: var(--muted); border: 1px dashed #365075; border-radius: 13px; font-size: 14px; }
+    .empty .emoji { font-size: 27px; margin-bottom: 4px; }
+    .formgrid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 13px; }
+    label { display: block; font-size: 13px; color: #c3d1e8; font-weight: 700; }
+    label > span { display: block; margin-bottom: 6px; }
+    input, select, textarea { width: 100%; min-width: 0; color: #fff; background: #0b172a; border: 1px solid #3a4d6b; border-radius: 10px; padding: 11px 12px; }
+    input::placeholder, textarea::placeholder { color: #7688a5; }
+    textarea { resize: vertical; min-height: 110px; }
+    .full { grid-column: 1 / -1; }
+    .primary { display: inline-flex; justify-content: center; align-items: center; gap: 8px; border: 0; border-radius: 11px; color: white; background: linear-gradient(135deg, #4275ff, #3069cd); padding: 12px 17px; font-weight: 800; margin-top: 13px; }
+    .primary:hover { filter: brightness(1.12); }
+    .muted { color: var(--muted); }
+    .filter { display: flex; gap: 5px; margin: 3px 0 15px; }
+    .filter button { background: #172740; border: 1px solid #344968; border-radius: 9px; color: #adc2e2; padding: 7px 13px; }
+    .filter button.selected { color: white; border-color: #568eff; background: #254d8c; }
+    .info { background: #102441; border: 1px solid #2d4e7c; border-radius: 13px; padding: 14px 16px; color: #b7d0f6; font-size: 13px; margin: 13px 0 22px; }
+    .foot { color: #7f94b3; padding: 20px 0 32px; font-size: 12px; text-align: center; }
+    .toast { position: fixed; bottom: 22px; left: 50%; transform: translate(-50%, 20px); background: #d6f7ee; color: #063b35; border-radius: 11px; padding: 12px 17px; font-weight: 800; box-shadow: 0 14px 35px #0007; opacity: 0; pointer-events: none; transition: .25s; z-index: 50; font-size: 14px; }
+    .toast.show { opacity: 1; transform: translate(-50%, 0); }
+    @media(max-width: 700px) { .shell { width: min(100% - 28px, 1100px); } .navinner { min-height: 68px; } .brand { font-size: 18px; } .smallbtn { font-size: 11px; padding: 8px 9px; } .hero { padding: 29px 22px; margin-top: 19px; } .hero:before { right: -240px; } .stats { gap: 9px; } .stat { padding: 13px 12px; } .stat strong { font-size: 27px; } .stat .meta { font-size: 11px; } .tabs { gap: 3px; } .tab { padding: 10px 11px; font-size: 12px; } .twocol { grid-template-columns: 1fr; } .card { padding: 17px; } .formgrid { grid-template-columns: 1fr; gap: 11px; } }
+    @media(max-width: 370px) { .brandmark { width: 34px; height: 34px; } .brand { gap: 7px; font-size: 16px; } .navright { gap: 4px; } .smallbtn { font-size: 10px; padding: 7px; } .stats { grid-template-columns: repeat(3,minmax(0,1fr)); } .stat { padding: 10px 7px; } .item { flex-direction: column; } .itemactions { align-self: flex-end; } }
+    @media(prefers-reduced-motion: reduce) { .page { animation: none; } .toast { transition: none; } }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="shell navinner">
+      <div class="brand"><span class="brandmark">S</span><span>Student<span style="color:var(--cyan)">Hub</span></span></div>
+      <div class="navright">
+        <button type="button" class="smallbtn" id="backupBtn" title="Simpan salinan datamu">↓ Cadangkan</button>
+        <button type="button" class="smallbtn" id="restoreBtn" title="Masukkan data dari cadangan">↑ Pulihkan</button>
+        <input hidden type="file" id="restoreFile" accept=".json,application/json">
+      </div>
+    </div>
+  </header>
+
+  <main class="shell">
+    <section class="hero">
+      <div class="eyebrow">✦ Ruang kuliah digital</div>
+      <h1>Kuliah lebih rapi,<br><span>pikiran lebih tenang.</span></h1>
+      <p>Atur tugas, jadwal, dan catatan kuliah di satu tempat. Mulai dari langkah kecil setiap hari.</p>
+      <span class="date-chip">🗓️ <span id="today">Hari ini</span></span>
+    </section>
+
+    <section class="stats" aria-label="Ringkasan data">
+      <div class="stat"><div class="meta">📌 Tugas aktif</div><strong id="activeCount">0</strong></div>
+      <div class="stat"><div class="meta">✅ Tugas selesai</div><strong id="doneCount">0</strong></div>
+      <div class="stat"><div class="meta">📚 Jadwal kuliah</div><strong id="scheduleCount">0</strong></div>
+    </section>
+
+    <nav class="tabs" aria-label="Menu StudentHub">
+      <button type="button" class="tab active" data-page="ringkasan" aria-pressed="true">🏠 Ringkasan</button>
+      <button type="button" class="tab" data-page="tugas" aria-pressed="false">✅ Tugas</button>
+      <button type="button" class="tab" data-page="jadwal" aria-pressed="false">🗓️ Jadwal</button>
+      <button type="button" class="tab" data-page="catatan" aria-pressed="false">📝 Catatan</button>
+    </nav>
+
+    <section class="page active" id="page-ringkasan">
+      <div class="heading"><div><h2>Halo, semangat kuliah! 👋</h2><p class="subheading">Ini gambaran kegiatan yang perlu kamu perhatikan.</p></div></div>
+      <div class="twocol">
+        <div class="card"><h3>⏳ Tugas yang perlu dikerjakan</h3><div id="summaryTasks"></div></div>
+        <div class="card"><h3>📅 Jadwal berikutnya</h3><div id="summarySchedules"></div></div>
+      </div>
+      <div class="info">💡 <strong>Tips:</strong> Buka menu <b>Tugas</b> untuk menambahkan deadline, menu <b>Jadwal</b> untuk mencatat kelas, dan <b>Catatan</b> untuk menyimpan materi.</div>
+    </section>
+
+    <section class="page" id="page-tugas">
+      <div class="heading"><div><h2>Daftar Tugas</h2><p class="subheading">Catat pekerjaan dan tandai kalau sudah selesai.</p></div></div>
+      <div class="card">
+        <h3>➕ Tambah tugas</h3>
+        <form id="taskForm">
+          <div class="formgrid">
+            <label class="full"><span>Nama tugas</span><input name="title" maxlength="100" required placeholder="Contoh: Presentasi kelompok"></label>
+            <label><span>Mata kuliah</span><input name="course" maxlength="70" placeholder="Contoh: Rekayasa Kebutuhan"></label>
+            <label><span>Deadline</span><input name="deadline" type="date"></label>
+          </div>
+          <button class="primary" type="submit">+ Simpan Tugas</button>
+        </form>
+      </div>
+      <div class="card"><h3>📋 Semua tugas</h3>
+        <div class="filter" aria-label="Filter tugas">
+          <button type="button" data-filter="semua" class="selected">Semua</button>
+          <button type="button" data-filter="aktif">Aktif</button>
+          <button type="button" data-filter="selesai">Selesai</button>
+        </div>
+        <div id="taskList"></div>
+      </div>
+    </section>
+
+    <section class="page" id="page-jadwal">
+      <div class="heading"><div><h2>Jadwal Kuliah</h2><p class="subheading">Biar nggak lupa jam dan ruang kelas.</p></div></div>
+      <div class="card">
+        <h3>➕ Tambah jadwal</h3>
+        <form id="scheduleForm">
+          <div class="formgrid">
+            <label class="full"><span>Mata kuliah</span><input name="course" maxlength="100" required placeholder="Contoh: Pemrograman Dasar"></label>
+            <label><span>Hari</span><select name="day"><option>Senin</option><option>Selasa</option><option>Rabu</option><option>Kamis</option><option>Jumat</option><option>Sabtu</option><option>Minggu</option></select></label>
+            <label><span>Ruang / lokasi</span><input name="room" maxlength="80" placeholder="Contoh: Lab Komputer"></label>
+            <label><span>Mulai</span><input name="start" type="time" required></label>
+            <label><span>Selesai</span><input name="end" type="time" required></label>
+          </div>
+          <button class="primary" type="submit">+ Simpan Jadwal</button>
+        </form>
+      </div>
+      <div class="card"><h3>📚 Semua jadwal</h3><div id="scheduleList"></div></div>
+    </section>
+
+    <section class="page" id="page-catatan">
+      <div class="heading"><div><h2>Catatan Kuliah</h2><p class="subheading">Simpan ringkasan materi dan ide penting.</p></div></div>
+      <div class="card">
+        <h3>✍️ Tulis catatan</h3>
+        <form id="noteForm">
+          <div class="formgrid">
+            <label class="full"><span>Judul catatan</span><input name="title" maxlength="100" required placeholder="Contoh: Ringkasan pertemuan 3"></label>
+            <label class="full"><span>Isi catatan</span><textarea name="content" required maxlength="10000" placeholder="Tulis apa yang kamu pelajari hari ini..."></textarea></label>
+          </div>
+          <button class="primary" type="submit" id="noteSubmit">+ Simpan Catatan</button>
+          <button class="smallbtn" type="button" id="cancelEdit" style="display:none;margin-left:8px">Batal ubah</button>
+        </form>
+      </div>
+      <div class="card"><h3>📖 Catatan tersimpan</h3><div id="noteList"></div></div>
+    </section>
+
+    <footer class="foot">StudentHub • Dibuat untuk belajar dan berkembang 🚀</footer>
+  </main>
+  <div class="toast" role="status" id="toast"></div>
+
+  <script>
+    (() => {
+      'use strict';
+      const KEY = 'studenthub-data-v1';
+      const DAYS = ['Senin','Selasa','Rabu','Kamis','Jumat','Sabtu','Minggu'];
+      const $ = (s) => document.querySelector(s);
+      let data = {tasks: [], schedules: [], notes: []};
+      let taskFilter = 'semua';
+      let editingNoteId = null;
+      let toastTimeout;
+      const uid = () => String(Date.now()) + '-' + Math.random().toString(36).slice(2,9);
+      const escapeHTML = (value) => String(value ?? '').replace(/[&<>"']/g, (c) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+      const formatDate = (dateStr) => {
+        if (!dateStr || !/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) return 'Tanpa deadline';
+        const d = new Date(`${dateStr}T12:00:00`);
+        return Number.isNaN(d.getTime()) ? 'Tanpa deadline' : new Intl.DateTimeFormat('id-ID', {day:'numeric', month:'short', year:'numeric'}).format(d);
+      };
+      function toast(message) {
+        const el = $('#toast'); el.textContent = message; el.classList.add('show');
+        clearTimeout(toastTimeout); toastTimeout = setTimeout(() => el.classList.remove('show'), 2500);
+      }
+      function persist() {
+        try { localStorage.setItem(KEY, JSON.stringify(data)); }
+        catch { toast('Penyimpanan browser tidak tersedia. Cadangkan datamu.'); }
+      }
+      function load() {
+        try {
+          const x = JSON.parse(localStorage.getItem(KEY) || 'null');
+          if (x && Array.isArray(x.tasks) && Array.isArray(x.schedules) && Array.isArray(x.notes)) data = x;
+        } catch { /* Gunakan data kosong kalau penyimpanan rusak */ }
+      }
+      function empty(icon, message) { return `<div class="empty"><span class="emoji">${icon}</span><span>${message}</span></div>`; }
+      function sortedTasks(list) {
+        return [...list].sort((a,b) => (a.done - b.done) || (a.deadline || '9999').localeCompare(b.deadline || '9999'));
+      }
+      function dueBadge(t) {
+        if (t.done) return '<span class="pill donepill">Selesai</span>';
+        if (!t.deadline) return '';
+        const today = new Date();
+        const localToday = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
+        if (t.deadline < localToday) return '<span class="pill urgent">Lewat deadline</span>';
+        if (t.deadline === localToday) return '<span class="pill urgent">Hari ini</span>';
+        return '<span class="pill soon">Ada deadline</span>';
+      }
+      function taskHTML(t, showControls = true) {
+        return `<article class="item ${t.done?'done':''}">
+          <div class="itemmain"><div class="itemname">${escapeHTML(t.title)}</div>
+          <div class="itemdetail">${escapeHTML(t.course || 'Umum')} • ${escapeHTML(formatDate(t.deadline))}</div>${dueBadge(t)}</div>
+          ${showControls ? `<div class="itemactions"><button type="button" class="iconbtn" data-action="toggle-task" data-id="${escapeHTML(t.id)}" aria-label="${t.done?'Tandai belum selesai':'Tandai selesai'}" title="${t.done?'Batalkan selesai':'Tandai selesai'}">${t.done?'↩':'✓'}</button><button type="button" class="iconbtn danger" data-action="delete-task" data-id="${escapeHTML(t.id)}" aria-label="Hapus tugas" title="Hapus tugas">×</button></div>` : ''}
+        </article>`;
+      }
+      function scheduleHTML(s, controls = true) {
+        return `<article class="item"><div class="itemmain"><div class="itemname">${escapeHTML(s.course)}</div>
+          <div class="itemdetail">🗓️ ${escapeHTML(s.day)} • ${escapeHTML(s.start)}–${escapeHTML(s.end)}${s.room ? ' • '+escapeHTML(s.room) : ''}</div></div>
+          ${controls ? `<div class="itemactions"><button type="button" class="iconbtn danger" data-action="delete-schedule" data-id="${escapeHTML(s.id)}" aria-label="Hapus jadwal" title="Hapus jadwal">×</button></div>` : ''}</article>`;
+      }
+      function render() {
+        $('#activeCount').textContent = data.tasks.filter(t => !t.done).length;
+        $('#doneCount').textContent = data.tasks.filter(t => t.done).length;
+        $('#scheduleCount').textContent = data.schedules.length;
+        const pending = sortedTasks(data.tasks.filter(t => !t.done));
+        $('#summaryTasks').innerHTML = pending.length ? pending.slice(0,3).map(t => taskHTML(t,false)).join('') : empty('🎉','Belum ada tugas aktif. Tambah tugas pertamamu!');
+        const todayIdx = (new Date().getDay()+6)%7;
+        const order = (s) => (DAYS.indexOf(s.day) - todayIdx + 7)%7;
+        const upcoming = [...data.schedules].sort((a,b) => order(a)-order(b) || a.start.localeCompare(b.start));
+        $('
